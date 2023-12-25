@@ -18,20 +18,35 @@ static pwm_dev_t light_led_w;
 uint16_t duty_list[] = {
     #include "duty_list.h"
 };
+#define LED0_PIN TC825X_GET_PIN_NUM(GPIO_PB4) // RED！！PC1
+#define LED1_PIN TC825X_GET_PIN_NUM(GPIO_PB5) // GREEN！！PC1
+#define LED2_PIN TC825X_GET_PIN_NUM(GPIO_PC1) // BLUE！！PC1
 
+static gpio_dev_t led_dev[3] = {0};
 static void _led_init(void)
 {
-    light_led_c.port = COLD_PIN;
-    light_led_c.config.duty_cycle = 0;
-    light_led_c.config.freq = LIGHT_FREQ;
-    hal_pwm_init(&light_led_c);
-    hal_pwm_start(&light_led_c);
+    int32_t ret = 0;
+    led_dev[0].port = LED0_PIN; /* gpio port config */
+    led_dev[0].config = OUTPUT_PUSH_PULL;/* set as output mode */
+    ret = hal_gpio_init(&led_dev[0]); /* configure GPIO with the given settings */
+    if (ret != 0) {
+        printf("gpio init error !\n");
+    }
 
-    light_led_w.port = WARM_PIN;
-    light_led_w.config.duty_cycle = 0;
-    light_led_w.config.freq = LIGHT_FREQ;
-    hal_pwm_init(&light_led_w);
-    hal_pwm_start(&light_led_w);
+    led_dev[1].port = LED1_PIN; /* gpio port config */
+    led_dev[1].config = OUTPUT_PUSH_PULL;/* set as output mode */
+    ret = hal_gpio_init(&led_dev[1]); /* configure GPIO with the given settings */
+    if (ret != 0) {
+        printf("gpio init error !\n");
+    }
+    led_dev[2].port = LED2_PIN; /* gpio port config */
+    led_dev[2].config = OUTPUT_PUSH_PULL;/* set as output mode */
+    ret = hal_gpio_init(&led_dev[2]); /* configure GPIO with the given settings */
+    if (ret != 0) {
+        printf("gpio init error !\n");
+    }
+    printf("++++++++++ led init! ++++++++++\n");
+    return ret;
 }
 
 //temperature 800~20000
@@ -100,23 +115,13 @@ static int _set_pwm_duty(uint8_t channel, uint8_t duty)
 
 static void _led_set(uint8_t onoff, uint16_t actual, uint16_t temperature)
 {
-    static uint8_t last_duty[LED_CHANNEL_MAX] = {0xFF, 0xFF};  //0~100
-    uint8_t duty[LED_CHANNEL_MAX];  //0~100
-
-    if(onoff == 0) {
-        duty[LED_COLD_CHANNEL] = 0;
-        duty[LED_WARM_CHANNEL] = 0;
-    } else {
-        _get_led_duty(duty, actual, temperature);
+    if(onoff)
+    {
+        hal_gpio_output_high(&led_dev[0]);
     }
-
-    if(last_duty[LED_COLD_CHANNEL] != duty[LED_COLD_CHANNEL]) {
-        last_duty[LED_COLD_CHANNEL] = duty[LED_COLD_CHANNEL];
-        _set_pwm_duty(LED_COLD_CHANNEL, duty[LED_COLD_CHANNEL]);
-    }
-    if(last_duty[LED_WARM_CHANNEL] != duty[LED_WARM_CHANNEL]) {
-        last_duty[LED_WARM_CHANNEL] = duty[LED_WARM_CHANNEL];
-        _set_pwm_duty(LED_WARM_CHANNEL, duty[LED_WARM_CHANNEL]);
+    else
+    {
+        hal_gpio_output_low(&led_dev[0]);
     }
 }
 

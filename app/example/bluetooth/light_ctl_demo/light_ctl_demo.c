@@ -299,7 +299,7 @@ static void _led_ctrl(elem_state_t *p_elem)
         last_onoff = onoff;
         last_acual = actual;
         last_temperature = temperature;
-        //LIGHT_DBG("%d,%d,%d", onoff, actual, temperature);
+        LIGHT_DBG("onoff=%d,actual=%d,temperature=%d", onoff, actual, temperature);
         _led_set(onoff, actual, temperature);
     }
 }
@@ -439,19 +439,11 @@ void user_event(E_GENIE_EVENT event, void *p_arg)
 
 int application_start(int argc, char **argv)
 {
-#if defined(BOARD_TG7100B) || defined(BOARD_CH6121EVB)
-    led_startup();
-#endif
 
     /* genie initilize */
     genie_init();
 
     BT_INFO("BUILD_TIME:%s", __DATE__","__TIME__);
-
-#ifndef BOARD_TC825X
-    // telink will run while(1) of sys_init later.
-    aos_loop_run();
-#endif
 
     return 0;
 }

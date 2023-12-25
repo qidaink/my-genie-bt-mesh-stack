@@ -1,4 +1,4 @@
-NAME := light_ctl
+NAME := light_ctl_demo
 
 GENIE_MAKE_PATH := app/example/bluetooth/$(NAME)
 
@@ -10,7 +10,7 @@ $(NAME)_INCLUDES += ../ \
 					../../../../genie_app/bluetooth/host \
 					../../../../genie_app/bluetooth/mesh
 
-$(NAME)_SOURCES  := light_ctl.c
+$(NAME)_SOURCES  := light_ctl_demo.c
 
 ble = 1
 bt_mesh = 1

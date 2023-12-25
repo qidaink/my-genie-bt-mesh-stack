@@ -14,9 +14,9 @@
 #else
 /* default UUID for identifying the unprovisioned node */
 // 602 1565d0497400c999e984cffa4da4fdf9 78da07c11ca8
-#define DEFAULT_PID 602
-#define DEFAULT_SECRET "1565d0497400c999e984cffa4da4fdf9"
-#define DEFAULT_MAC "78da07c11ca8"
+#define DEFAULT_PID    21176303                             // product_id
+#define DEFAULT_SECRET "17e0e0266ffe3c6ecee7510d4dec7361"   // device_secret
+#define DEFAULT_MAC    "64f0ad03a185"                       // device_name
 
 #endif
 #if 0
