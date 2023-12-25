@@ -1,0 +1,18 @@
+{
+    "search.exclude": { //表示搜索区域
+        "**/platform/mcu/[a-s]*" : true, //[a-s]* 表示a到s字符开头的全部屏蔽，数值也一样，自行体验
+        "**/board/bk3435devkit" : true,
+        "**/board/pca10040" : true,
+        "**/board/ch6121evb" : true,
+        "**/board/tg7100b" : true,
+    },
+    "files.exclude":{ //表示显示区域
+        "**/.git" : true, //true标识改目录不被显示
+        "**/.g**" : true, //*号标识通配符，.g开头的均屏蔽，根据用途自行配置，多多尝试
+        "**/platform/mcu/[a-s]*" : true, //[a-s]* 表示a到s字符开头的全部屏蔽，数值也一样，自行体验
+        "**/board/bk3435devkit" : true,
+        "**/board/pca10040" : true,
+        "**/board/ch6121evb" : true,
+        "**/board/tg7100b" : true,
+    }
+}
