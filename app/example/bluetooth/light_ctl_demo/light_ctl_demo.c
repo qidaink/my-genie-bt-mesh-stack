@@ -82,7 +82,7 @@ static struct bt_mesh_model element_models[] = {
     BT_MESH_MODEL_HEALTH_SRV(),
 
     MESH_MODEL_GEN_ONOFF_SRV(&g_elem_state[0]),
-    MESH_MODEL_LIGHTNESS_SRV(&g_elem_state[0]),
+    MESH_MODEL_LIGHTNESS_SRV(&g_elem_state[0]), // 亮度模型添加
     MESH_MODEL_CTL_SRV(&g_elem_state[0]),
 #ifndef CONFIG_ALI_SIMPLE_MODLE
     MESH_MODEL_GEN_LEVEL_SRV(&g_elem_state[0]),
@@ -139,6 +139,7 @@ void mesh_sub_init(u16_t *p_sub)
 /* functions in light_ctl_board.c */
 static void _led_init(void);
 static void _led_set(uint8_t onoff, uint16_t actual, uint16_t temperature);
+extern void _pwm_init(void);
 
 #ifdef CONFIG_GENIE_OTA
 bool ota_check_reboot(void)
@@ -405,6 +406,7 @@ void user_event(E_GENIE_EVENT event, void *p_arg)
             _user_init();
 #else
             _led_init();
+            _pwm_init();
             _init_light_para();
             _user_init();
             if (!genie_reset_get_flag()) {

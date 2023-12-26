@@ -6,7 +6,9 @@
 	],
 	"settings": {
 		"files.associations": {
-			"pwm.h": "c"
+			"pwm.h": "c",
+			"alios_app_config.h": "c",
+			"gpio_8258.h": "c"
 		}
 	}
 }

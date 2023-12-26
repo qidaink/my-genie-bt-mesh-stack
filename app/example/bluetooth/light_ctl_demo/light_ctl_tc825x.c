@@ -1,5 +1,5 @@
-
-
+#include <hal/soc/gpio.h>
+#include <hal/soc/pwm.h>
 #include "drivers/8258/gpio_8258.h"
 #include "vendor/common/alios_app_config.h"
 
@@ -18,11 +18,16 @@ static pwm_dev_t light_led_w;
 uint16_t duty_list[] = {
     #include "duty_list.h"
 };
+
+#define BLUE_LED_PWM
 #define LED0_PIN TC825X_GET_PIN_NUM(GPIO_PB4) // RED！！PC1
 #define LED1_PIN TC825X_GET_PIN_NUM(GPIO_PB5) // GREEN！！PC1
 #define LED2_PIN TC825X_GET_PIN_NUM(GPIO_PC1) // BLUE！！PC1
 
 static gpio_dev_t led_dev[3] = {0};
+#ifdef BLUE_LED_PWM
+static pwm_dev_t gpio_pwm = {0};
+#endif
 static void _led_init(void)
 {
     int32_t ret = 0;
@@ -39,16 +44,39 @@ static void _led_init(void)
     if (ret != 0) {
         printf("gpio init error !\n");
     }
+#ifndef BLUE_LED_PWM
     led_dev[2].port = LED2_PIN; /* gpio port config */
     led_dev[2].config = OUTPUT_PUSH_PULL;/* set as output mode */
     ret = hal_gpio_init(&led_dev[2]); /* configure GPIO with the given settings */
     if (ret != 0) {
         printf("gpio init error !\n");
     }
+#endif
     printf("++++++++++ led init! ++++++++++\n");
-    return ret;
+    return;
 }
 
+void _pwm_init(void)
+{
+    int32_t ret = 0;
+#ifdef BLUE_LED_PWM
+    gpio_pwm.port = LED2_PIN;
+    gpio_pwm.config.freq = 1000;
+    gpio_pwm.config.duty_cycle = 0.00;
+    gpio_pwm.priv = NULL;
+
+    ret = hal_pwm_init(&gpio_pwm);
+    if(ret){
+        printf("hal_pwm_init fail,ret:%d\r\n",ret);
+        return;
+    }
+
+    hal_pwm_start(&gpio_pwm);
+#endif
+    printf("++++++++++ pwm init! ++++++++++\n");
+
+    return;
+}
 //temperature 800~20000
 //ligntness 655~65535
 //return duty 0-100
@@ -115,6 +143,7 @@ static int _set_pwm_duty(uint8_t channel, uint8_t duty)
 
 static void _led_set(uint8_t onoff, uint16_t actual, uint16_t temperature)
 {
+    // 
     if(onoff)
     {
         hal_gpio_output_high(&led_dev[0]);
@@ -123,5 +152,12 @@ static void _led_set(uint8_t onoff, uint16_t actual, uint16_t temperature)
     {
         hal_gpio_output_low(&led_dev[0]);
     }
+#ifdef BLUE_LED_PWM
+    // 
+    pwm_config_t para = {0.000, 1000};
+    para.duty_cycle = (float)actual/65536;
+    hal_pwm_para_chg(&gpio_pwm, para);
+#endif
+    return;
 }
 
