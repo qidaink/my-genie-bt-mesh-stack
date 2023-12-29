@@ -92,7 +92,7 @@ static struct bt_mesh_model element_models[] = {
 };
 
 static struct bt_mesh_model g_element_vendor_models[] = {
-    MESH_MODEL_VENDOR_SRV(&g_elem_state[0]),
+    MESH_MODEL_VENDOR_SRV(&g_elem_state[0]), // 通用的厂商模型，但是依然要添加上面必须添加的两个模型
 };
 
 struct bt_mesh_elem elements[] = {
@@ -428,7 +428,20 @@ void user_event(E_GENIE_EVENT event, void *p_arg)
         }
         case GENIE_EVT_SDK_INDICATE:
             break;
-        case GENIE_EVT_SDK_VENDOR_MSG:
+        case GENIE_EVT_SDK_VENDOR_MSG: // 厂商消息处理
+            {
+                // 注意，在switch中定义变量，需要有花括号{}
+                printf("++++++++++ GENIE_EVT_SDK_VENDOR_MSG! ++++++++++\r\n");
+                vnd_model_msg *pVMmsg = (elem_state_t *)p_arg;
+                printf("opid 0x%x\r\n", pVMmsg->opid);
+                int i = 0;
+                printf("data ", pVMmsg->opid);
+                for(;i<pVMmsg->len;i++)
+                {
+                    printf("0x%x ", pVMmsg->data[i]);
+                }
+                printf("\r\n");
+            }
             break;
         default:
             break;
