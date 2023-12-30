@@ -9,7 +9,11 @@
 			"pwm.h": "c",
 			"alios_app_config.h": "c",
 			"gpio_8258.h": "c",
-			"gpio.h": "c"
+			"gpio.h": "c",
+			"my_driver.h": "c",
+			"array": "c",
+			"string": "c",
+			"string_view": "c"
 		}
 	}
 }
