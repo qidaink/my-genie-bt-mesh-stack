@@ -48,6 +48,13 @@ typedef struct{
     uint16_t actual_tar;
     uint32_t time_end;
 } led_flash_t;
+//设备属性命令，在设备功能定义面板有，可以去下面的蓝牙设备属性表验证
+// https://help.aliyun.com/document_detail/173320.html?spm=a2c4g.130442.0.0.28e55495xQKyEa
+typedef enum __TYPE_CMD_{
+    FAN_DIR = 0x0521,
+    FAN_SPEED = 0x010A,
+    LED_COLOR = 0x0123,
+} _TYPE_CMD_;
 
 typedef struct __DEMO_DEV_{
     uint8_t led_color;
@@ -68,13 +75,13 @@ uint32_t get_mesh_pbadv_time(void)
 }
 
 /* element configuration start */
-#define MESH_ELEM_COUNT 1
+#define MESH_ELEM_COUNT 2
 #define MESH_ELEM_STATE_COUNT MESH_ELEM_COUNT
 
 elem_state_t g_elem_state[MESH_ELEM_STATE_COUNT];
 model_powerup_t g_powerup[MESH_ELEM_STATE_COUNT];
 
-static struct bt_mesh_model element_models[] = {
+static struct bt_mesh_model led_element_models[] = {
     BT_MESH_MODEL_CFG_SRV(),
     BT_MESH_MODEL_HEALTH_SRV(),
 
@@ -82,12 +89,21 @@ static struct bt_mesh_model element_models[] = {
     MESH_MODEL_LIGHTNESS_SRV(&g_elem_state[0]), // 通用亮度模型
 };
 
+static struct bt_mesh_model fan_element_models[] = {
+    BT_MESH_MODEL_CFG_SRV(),
+    BT_MESH_MODEL_HEALTH_SRV(),
+
+    MESH_MODEL_GEN_ONOFF_SRV(&g_elem_state[1]), // 通用开关模型
+};
+
 static struct bt_mesh_model g_element_vendor_models[] = {
     MESH_MODEL_VENDOR_SRV(&g_elem_state[0]),
+    MESH_MODEL_VENDOR_SRV(&g_elem_state[1]),
 };
 
 struct bt_mesh_elem elements[] = {
-    BT_MESH_ELEM(0, element_models, g_element_vendor_models, 0),
+    BT_MESH_ELEM(0, led_element_models, g_element_vendor_models, 0),
+    BT_MESH_ELEM(0, fan_element_models, g_element_vendor_models, 1),
 };
 
 uint8_t get_vendor_element_num(void)
@@ -320,6 +336,19 @@ void set_led_recv(elem_state_t *p_user_state)
     return;
 }
 
+void set_fan_recv(elem_state_t *p_user_state)
+{
+    if(p_user_state == NULL)
+    {
+        printf("user_state is NULL!\r\n");
+        return;
+    }
+    printf("onoff=%d,temperature=%d\r\n",
+            p_user_state->state.onoff[T_CUR],
+            p_user_state->state.temp[T_CUR]);
+    return;
+}
+
 void vnd_model_recv(vnd_model_msg *p_vnd_msg)
 {
     int i = 0;
@@ -350,7 +379,7 @@ void vnd_model_recv(vnd_model_msg *p_vnd_msg)
 
     switch(type)
     {
-        case 0x0123:
+        case LED_COLOR: // 颜色
             light |= p_vnd_msg->data[3];
             light <<= 8;
             light |= p_vnd_msg->data[2];
@@ -364,6 +393,12 @@ void vnd_model_recv(vnd_model_msg *p_vnd_msg)
             saturation |= p_vnd_msg->data[6];
 
             analize_color(light, hue, saturation);
+            break;
+        case FAN_DIR:
+            printf("风扇方向为 %d\r\n", p_vnd_msg->data[2]);
+            break;
+        case FAN_SPEED:
+            printf("风扇速度为 %d\r\n", p_vnd_msg->data[2]);
             break;
         default:
             break;
@@ -405,9 +440,17 @@ void user_event(E_GENIE_EVENT event, void *p_arg)
         case GENIE_EVT_SDK_TRANS_CYCLE:
         case GENIE_EVT_SDK_ACTION_DONE:
             {
-                printf("++++++++++ GENIE_EVT_SDK_ACTION_DONE ++++++++++\r\n");
                 elem_state_t *user_state = (elem_state_t *)p_arg;
-                set_led_recv(user_state);
+                printf("++++++++++ GENIE_EVT_SDK_ACTION_DONE elem_index=%d ++++++++++\r\n",
+                        user_state->elem_index);
+                if(user_state->elem_index == 0)
+                {
+                    set_led_recv(user_state);
+                }
+                else if(user_state->elem_index == 1)
+                {
+                    set_fan_recv(user_state);
+                }
             }
             break;
         case GENIE_EVT_SDK_INDICATE:
