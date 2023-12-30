@@ -7,7 +7,7 @@ $(NAME)_INCLUDES += ../../../../genie_app \
 					../../../../genie_app/bluetooth/host \
 					../../../../genie_app/bluetooth/mesh
 
-$(NAME)_SOURCES  := my_demo.c
+$(NAME)_SOURCES  := my_demo.c my_driver.c
 
 ifeq ($(HOST_MCU_FAMILY),ch6121)
 bt_host_tinycrypt = 0
