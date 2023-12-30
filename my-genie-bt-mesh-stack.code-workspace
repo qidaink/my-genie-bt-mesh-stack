@@ -8,7 +8,8 @@
 		"files.associations": {
 			"pwm.h": "c",
 			"alios_app_config.h": "c",
-			"gpio_8258.h": "c"
+			"gpio_8258.h": "c",
+			"gpio.h": "c"
 		}
 	}
 }
