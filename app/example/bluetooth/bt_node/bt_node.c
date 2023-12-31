@@ -23,7 +23,7 @@
 #include <soc.h>
 #include <api/mesh.h>
 #include "genie_app.h"
-
+#include "my_driver.h"
 #define DEFAULT_MESH_GROUP1 0xC000
 #define DEFAULT_MESH_GROUP2 0xCFFF
 
@@ -287,6 +287,7 @@ int application_start(int argc, char **argv)
     genie_init();
 
     printk("BUILD_TIME:%s\n", __DATE__","__TIME__);
+    led_test();
     //aos init
 #ifndef BOARD_TC825X    // telink confirm later: don't use this, because we will run while(1) of sys_init later.
     aos_loop_run();

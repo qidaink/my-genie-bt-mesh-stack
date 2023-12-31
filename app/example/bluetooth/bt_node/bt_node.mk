@@ -5,9 +5,10 @@ $(NAME)_COMPONENTS  += genie_app bluetooth.bt_host bluetooth.bt_mesh yloop cli
 $(NAME)_INCLUDES += ../../../../genie_app \
 					../../../../genie_app/base \
 					../../../../genie_app/bluetooth/host \
-					../../../../genie_app/bluetooth/mesh
+					../../../../genie_app/bluetooth/mesh \
+					./
 
-$(NAME)_SOURCES  := bt_node.c
+$(NAME)_SOURCES  := bt_node.c my_driver.c
 
 ifeq ($(HOST_MCU_FAMILY),ch6121)
 bt_host_tinycrypt = 0
