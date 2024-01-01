@@ -287,7 +287,8 @@ int application_start(int argc, char **argv)
     genie_init();
 
     printk("BUILD_TIME:%s\n", __DATE__","__TIME__);
-    fan_test();
+    fan_init();
+    key_init();
     led_test();
     //aos init
 #ifndef BOARD_TC825X    // telink confirm later: don't use this, because we will run while(1) of sys_init later.

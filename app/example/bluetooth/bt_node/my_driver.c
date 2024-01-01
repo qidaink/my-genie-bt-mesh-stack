@@ -7,11 +7,13 @@
 
 #include "my_driver.h"
 
-static FAN_DEV fan_dev = {FAN_FOREWARD, 0, 0, 25000};
+static FAN_DEV fan_dev = {FAN_FOREWARD, 0, 0.0f, 25000};
 
 static gpio_dev_t light_led = {0};
 static pwm_dev_t fan_ina = {0};
 static pwm_dev_t fan_inb = {0};
+static gpio_dev_t key_sw1 = {0};
+static gpio_dev_t key_sw2 = {0};
 
 int32_t led_init(void)
 {
@@ -42,7 +44,7 @@ int32_t fan_init(void)
 {
     int32_t ret = 0;
     fan_ina.port = FAN_INA_PIN;
-    fan_ina.config.duty_cycle = fan_dev.cycle;     // 0.0 占空比 0%
+    fan_ina.config.duty_cycle = fan_dev.init_cycle;     // 0.0 占空比 0%
     fan_ina.config.freq = fan_dev.freq;
     ret = hal_pwm_init(&fan_ina);
     if(ret != 0)
@@ -58,7 +60,7 @@ int32_t fan_init(void)
     }
 
     fan_inb.port = FAN_INB_PIN;
-    fan_inb.config.duty_cycle = fan_dev.cycle;     // 0.0   占空比 0%
+    fan_inb.config.duty_cycle = fan_dev.init_cycle;     // 0.0   占空比 0%
     fan_inb.config.freq = fan_dev.freq;
     ret =  hal_pwm_init(&fan_inb);
     if(ret != 0)
@@ -93,14 +95,14 @@ int32_t fan_ctrl(uint8_t status, uint32_t speed)
     {
         case FAN_FOREWARD:      //比如说正转是
             fan_ina.config.duty_cycle = 0;  
-            fan_inb.config.duty_cycle = speed;      //占空比  参数在0~1之间
+            fan_inb.config.duty_cycle = target_speed;      //占空比  参数在0~1之间
             //int32_t hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
             hal_pwm_para_chg(&fan_ina, fan_ina.config);
             hal_pwm_para_chg(&fan_inb, fan_inb.config);
             //printf("风扇正转\r\n");
             break;
         case FAN_REVERSAL:
-            fan_ina.config.duty_cycle = speed;  
+            fan_ina.config.duty_cycle = target_speed;  
             fan_inb.config.duty_cycle = 0;      //占空比  参数在0~1之间
             //int32_t hal_pwm_para_chg(pwm_dev_t *pwm, pwm_config_t para)
             hal_pwm_para_chg(&fan_ina,fan_ina.config);
@@ -142,4 +144,74 @@ int32_t fan_test(void)
     fan_ctrl(FAN_STOP, 0);
 
     return 0;
+}
+
+void key_irq_handler(void *arg)
+{
+    gpio_dev_t *tmp = (gpio_dev_t *)arg;
+    switch (tmp->port)
+    {
+        case KEY_SW1: // 按键1是风速变大
+            fan_dev.speed += 10000;
+            if (fan_dev.speed > 60000)
+            {
+                fan_dev.speed = 60000;
+            }
+            printf("风速变大 fan_dev.speed=%d\r\n", fan_dev.speed);
+            break;
+        case KEY_SW2: // 按键1是风速变小
+            fan_dev.speed -= 10000;
+            if (fan_dev.speed < 0)
+            {
+                fan_dev.speed = 0;
+            }
+            printf("风速变小 fan_dev.speed=%d\r\n", fan_dev.speed);
+            break;
+        default:
+            printf("中断不识别\r\n");
+            break;
+    }
+    // 风扇控制
+    fan_ctrl(fan_dev.dir, fan_dev.speed);
+
+    return;
+}
+
+// 注意需要 开启platform/mcu/tc32_825x/vendor/common/alios_app_config.h中的GPIO_IRQ_ENABLE
+// 之前已经开过了
+int32_t key_init(void)
+{
+    int32_t ret = 0;
+    //按键sw1初始化
+    key_sw1.port = KEY_SW1;
+    key_sw1.config = INPUT_PULL_UP;
+    ret = hal_gpio_init(&key_sw1);
+    if(ret != 0)
+    {
+        printf("hal_gpio_init fail!ret=%d\n", ret);
+        return ret;
+    }
+    ret = hal_gpio_enable_irq(&key_sw1, IRQ_TRIGGER_FALLING_EDGE, key_irq_handler,&key_sw1);
+    if(ret != 0)
+    {
+        printf("hal_gpio_enable_irq fail!ret=%d\n", ret);
+        return ret;
+    }
+    //按键sw2初始化
+    key_sw2.port = KEY_SW2;
+    key_sw2.config = INPUT_PULL_UP;
+    ret = hal_gpio_init(&key_sw2);
+    if(ret != 0)
+    {
+        printf("hal_gpio_init fail!ret=%d\n", ret);
+        return ret;
+    }
+    ret = hal_gpio_enable_irq(&key_sw2, IRQ_TRIGGER_FALLING_EDGE, key_irq_handler,&key_sw2);
+    if(ret != 0)
+    {
+        printf("hal_gpio_enable_irq fail!ret=%d\n", ret);
+        return ret;
+    }
+    printf("++++++++++ key init! ++++++++++\n");
+    return ret;
 }
