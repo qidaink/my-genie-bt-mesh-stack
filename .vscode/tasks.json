@@ -2,19 +2,48 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "my_helloworld_tc825x", //标签，会在生成代码中显示出来此目标名
-			"type": "shell",   //类型为shell
-			"command": "aos", //此处配置命令，本初使用的alios，所以指定了aos，如果是直接make就指定make即可
+			"label": "aos make clean", // 标签，会在生成代码中显示出来此目标名
+			"type": "shell",           // 类型为shell
+			"command": "aos",          // 此处配置命令，本初使用的alios，所以指定了aos，如果是直接make就指定make即可
 			"args": [
 				"make",
-				"bluetooth.my_helloworld_tc825x@tc825x", //此处为命令跟的参数，也就是aos make bluetooth.light_ctl@tc825x
+				"clean",               // 此处为命令跟的参数，也就是 aos make clean
 			],
-			"group": "build", //归属于build组下，编译目标类别内
+			"group": "build",          // 归属于build组下，编译目标类别内
+			"presentation": {
+				"reveal": "silent"     // 此处为出现错误时才会进行输出
+			},
+			"problemMatcher": "$msCompile" // 此处为使用标准的MS编译器输出错误和警告等信息
+		},
+		{
+			"label": "my_helloworld_tc825x", // 标签，会在生成代码中显示出来此目标名
+			"type": "shell",                 // 类型为shell
+			"command": "aos",                // 此处配置命令，本初使用的alios，所以指定了aos，如果是直接make就指定make即可
+			"args": [
+				"make",
+				"bluetooth.my_helloworld_tc825x@tc825x", // 此处为命令跟的参数，也就是aos make bluetooth.light_ctl@tc825x
+			],
+			"group": "build",      // 归属于build组下，编译目标类别内
 			"presentation": {
 				"reveal": "silent" // 此处为出现错误时才会进行输出
 			},
 			"problemMatcher": "$msCompile" // 此处为使用标准的MS编译器输出错误和警告等信息
 		},
+		{
+			"label": "bt_node",    // 标签，会在生成代码中显示出来此目标名
+			"type": "shell",       // 类型为shell
+			"command": "aos",      // 此处配置命令，本初使用的alios，所以指定了aos，如果是直接make就指定make即可
+			"args": [
+				"make",
+				"bluetooth.bt_node@tc825x", // 此处为命令跟的参数，也就是aos make bluetooth.light_ctl@tc825x
+			],
+			"group": "build",               // 归属于build组下，编译目标类别内
+			"presentation": {
+				"reveal": "silent"          // 此处为出现错误时才会进行输出
+			},
+			"problemMatcher": "$msCompile"  // 此处为使用标准的MS编译器输出错误和警告等信息
+		},
+		
 		/*
 		//使用时如果没有第二个目标，可将下面的内容删除，注意格式即可
 		{
