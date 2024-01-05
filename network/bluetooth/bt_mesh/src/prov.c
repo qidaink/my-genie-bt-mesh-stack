@@ -533,6 +533,7 @@ static void prov_invite(const u8_t *data)
 
     /* Static OOB Type */
 #ifdef GENIE_OLD_AUTH
+    // 只有prov->static_val 等于NULL，发送配网邀请的时候才会把对应的静态oob标志位写为0。
     net_buf_simple_add_u8(buf, prov->static_val ? MESH_BIT(0) : 0x00);
 #else
     net_buf_simple_add_u8(buf, MESH_BIT(0));
@@ -640,7 +641,7 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
                    prov->static_val, prov->static_val_len);
             memset(link.auth, 0, sizeof(link.auth) - prov->static_val_len);
             return 0;
-#if 0   //refuse other method
+        // 无OOB认证
         case AUTH_METHOD_NO_OOB:
             if (action || size) {
                 return -EINVAL;
@@ -648,7 +649,7 @@ static int prov_auth(u8_t method, u8_t action, u8_t size)
 
             memset(link.auth, 0, sizeof(link.auth));
             return 0;
-
+#if 0   //refuse other method
         case AUTH_METHOD_OUTPUT:
             output = output_action(action);
             if (!output) {
@@ -801,6 +802,9 @@ static void send_confirm(void)
 #else
     memcpy(link.auth , genie_tri_tuple_get_auth(link.rand), STATIC_OOB_LENGTH);
 #endif
+    // 无OOB认证
+    memset(link.auth ,0,STATIC_OOB_LENGTH);
+
     if (bt_mesh_prov_conf(link.conf_key, link.rand, link.auth,
                           net_buf_simple_add(cfm, 16))) {
         BT_ERR("Unable to generate confirmation value");
@@ -1008,6 +1012,9 @@ static void prov_random(const u8_t *data)
 #else
     memcpy(link.auth , genie_tri_tuple_get_auth(data), STATIC_OOB_LENGTH);
 #endif
+    // 无OOB认证
+    memset(link.auth ,0,STATIC_OOB_LENGTH);
+    
     if (bt_mesh_prov_conf(link.conf_key, data, link.auth, conf_verify)) {
         BT_ERR("Unable to calculate confirmation verification");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
