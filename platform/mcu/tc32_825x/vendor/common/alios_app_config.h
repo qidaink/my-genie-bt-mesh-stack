@@ -85,7 +85,7 @@ enum{
 #define HW_UART_RING_BUF_EN		1
 #endif
 
-#define GPIO_IRQ_ENABLE					1
+#define GPIO_IRQ_ENABLE					0
 
 #if GPIO_IRQ_ENABLE
 #define GPIO_IRQ_SUPPORTED_NUM			2

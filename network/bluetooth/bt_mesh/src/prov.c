@@ -197,6 +197,12 @@ static const struct bt_mesh_prov *prov;
 
 static void close_link(u8_t err, u8_t reason);
 
+void bt_mesh_role_node_test(void)
+{
+    printf("This is bt_mesh_role_node_test!!!\r\n");
+    return;
+}
+
 #if defined(CONFIG_BT_MESH_PB_ADV)
 static void buf_sent(int err, void *user_data)
 {

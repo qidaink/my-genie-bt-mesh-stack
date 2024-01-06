@@ -35,6 +35,12 @@
 
 #endif
 
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+#include "provisioner_prov.h"
+#else
+#include "prov.h"
+#endif
+
 #define MESH_ELEM_COUNT 1
 #define MESH_ELEM_STATE_COUNT MESH_ELEM_COUNT
 
@@ -283,7 +289,14 @@ static u8_t leds_init(void)
 
 int application_start(int argc, char **argv)
 {
-    printk("*** BUILD_TIME:%s ***\n", __DATE__","__TIME__);
+    printk("### BUILD_TIME:%s ###\n", __DATE__","__TIME__);
+    #ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+    printf("This is bt_mesh provisioner!!!\r\n");
+    bt_mesh_role_provisioner_test();
+    #else
+    printf("This is bt_mesh node!!!\r\n");
+    bt_mesh_role_node_test();
+    #endif
     // init genie (app & mesh)
     genie_init();
 

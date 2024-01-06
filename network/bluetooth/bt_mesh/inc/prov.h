@@ -10,6 +10,7 @@
 
 #include <mesh_def.h>
 
+void bt_mesh_role_node_test(void);
 void bt_mesh_pb_adv_recv(struct net_buf_simple *buf);
 
 bool bt_prov_active(void);

@@ -13,7 +13,9 @@
 			"my_driver.h": "c",
 			"array": "c",
 			"string": "c",
-			"string_view": "c"
+			"string_view": "c",
+			"bt_mesh_custom_log.h": "c",
+			"provisioner_prov.h": "c"
 		}
 	}
 }

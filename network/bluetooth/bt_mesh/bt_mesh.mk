@@ -39,6 +39,11 @@ $(NAME)_SOURCES  :=  ./src/access.c \
                      ./src/lpn.c \
                      ./src/shell.c 
 
+ifeq ($(FUNC_BT_MESH_PROVISIONER), y)
+$(NAME)_SOURCES  += ./src/provisioner_prov.c # 配网器
+else
+$(NAME)_SOURCES  += # 节点，上面的配网器的还未实现，这里暂不修改 ./src/prov.c 
+endif
 
 GLOBAL_INCLUDES += ./inc/ \
                    ./inc/api

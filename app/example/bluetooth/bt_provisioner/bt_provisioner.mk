@@ -86,4 +86,11 @@ GLOBAL_DEFINES += GENIE_OLD_AUTH
 #===========================================
 # 自定义部分
 GLOBAL_DEFINES += CONFIG_BT_DEBUG_LOG  # 开启DEBUG打印宏，方便调试
+#GLOBAL_DEFINES += GENIE_NO_OOB    # 手机配网的时候测试用，无OOB认证
+export FUNC_BT_MESH_PROVISIONER = $(MAKE_BT_MESH_ROLE_PROVISIONER)
+ifeq ($(FUNC_BT_MESH_PROVISIONER), y)
+GLOBAL_DEFINES += CONFIG_BT_MESH_ROLE_PROVISIONER  # 配网器
+else
+GLOBAL_DEFINES +=
+endif
 #===========================================
