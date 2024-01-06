@@ -288,13 +288,13 @@ int8_t genie_tri_tuple_load(void)
     ret = genie_flash_read_trituple(&g_pid, g_mac, g_key);
 
     if(ret != GENIE_FLASH_SUCCESS) {
-        BT_ERR("read error, use default");
+        BT_ERR("read error, use default"); // 打印开启后会发现这里是报错的，会使用我们tri_tuple_default.h中定义的数据
         g_pid = DEFAULT_PID;
+        BT_INFO("g_pid=%d", g_pid);
         stringtohex(l_key, g_key, 16);
         stringtohex(l_mac, g_mac, 6);
         return -1;
     }
-
     return 0;
 }
 
