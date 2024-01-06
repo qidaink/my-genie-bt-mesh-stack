@@ -1258,10 +1258,11 @@ void genie_mesh_init(void)
     prov.static_val = genie_tri_tuple_get_auth();
     prov.static_val_len = STATIC_OOB_LENGTH;
 #endif
+#ifdef GENIE_NO_OOB
     // 无OOB认证
     prov.static_val = NULL;
     prov.static_val_len = 0;
-
+#endif
     prov.complete = _prov_complete;
     prov.reset = _prov_reset;
 

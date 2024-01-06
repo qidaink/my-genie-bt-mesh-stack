@@ -802,9 +802,10 @@ static void send_confirm(void)
 #else
     memcpy(link.auth , genie_tri_tuple_get_auth(link.rand), STATIC_OOB_LENGTH);
 #endif
+#ifdef GENIE_NO_OOB
     // 无OOB认证
     memset(link.auth ,0,STATIC_OOB_LENGTH);
-
+#endif
     if (bt_mesh_prov_conf(link.conf_key, link.rand, link.auth,
                           net_buf_simple_add(cfm, 16))) {
         BT_ERR("Unable to generate confirmation value");
@@ -1012,9 +1013,10 @@ static void prov_random(const u8_t *data)
 #else
     memcpy(link.auth , genie_tri_tuple_get_auth(data), STATIC_OOB_LENGTH);
 #endif
+#ifdef GENIE_NO_OOB
     // 无OOB认证
     memset(link.auth ,0,STATIC_OOB_LENGTH);
-    
+#endif
     if (bt_mesh_prov_conf(link.conf_key, data, link.auth, conf_verify)) {
         BT_ERR("Unable to calculate confirmation verification");
         close_link(PROV_ERR_UNEXP_ERR, CLOSE_REASON_FAILED);
