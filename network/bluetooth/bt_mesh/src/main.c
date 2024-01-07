@@ -20,7 +20,7 @@
 
 #include "test.h"
 #include "adv.h"
-#include "prov.h"
+
 #include "net.h"
 #include "beacon.h"
 #include "lpn.h"
@@ -32,6 +32,12 @@
 #include "mesh.h"
 
 #include "bt_mesh_custom_log.h"
+
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+#include "provisioner_prov.h"
+#else
+#include "prov.h"
+#endif
 
 static bool provisioned;
 
@@ -101,7 +107,9 @@ int bt_mesh_provision(const u8_t net_key[16], u16_t net_idx,
     genie_flash_write_seq(&seq);
 #endif
     if (IS_ENABLED(CONFIG_BT_MESH_PROV)) {
-        bt_mesh_prov_complete(net_idx, addr);
+        #ifndef CONFIG_BT_MESH_ROLE_PROVISIONER // 添加宏 
+        bt_mesh_prov_complete(net_idx, addr);	// 配网器不需要运行此函数 
+        #endif
     }
 
     return 0;
@@ -227,23 +235,35 @@ int bt_mesh_init(const struct bt_mesh_prov *prov,
     if (err) {
         return err;
     }
-
+    // 注册成分数据
     err = bt_mesh_comp_register(comp);
     if (err) {
         return err;
     }
-
+    // 初始化配网信息
     if (IS_ENABLED(CONFIG_BT_MESH_PROV)) {
-        err = bt_mesh_prov_init(prov);
+        #ifndef CONFIG_BT_MESH_ROLE_PROVISIONER
+        err = bt_mesh_prov_init(prov); // 节点设备初始化
         if (err) {
             return err;
         }
+        #endif
     }
 
-    bt_mesh_net_init();
-    bt_mesh_trans_init();
-    bt_mesh_beacon_init();
-    bt_mesh_adv_init();
+    bt_mesh_net_init();   // 网络层初始化
+    bt_mesh_trans_init(); // 传输层初始化
+    bt_mesh_beacon_init();// 承载层初始化
+    bt_mesh_adv_init();   // 广播初始化
+
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+    aos_msleep(3000);     // 加些延时,需要给获得密钥一些时间
+    if (IS_ENABLED(CONFIG_BT_MESH_PROV)) {
+        err = bt_mesh_provisioner_prov_init(prov); // 配网器初始化
+        if (err) {
+            return err;
+        }
+    } 
+#endif
 
     if (IS_ENABLED(CONFIG_BT_MESH_GATT_PROXY)) {
         bt_mesh_proxy_init();

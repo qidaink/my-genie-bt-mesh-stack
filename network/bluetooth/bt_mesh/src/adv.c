@@ -473,7 +473,11 @@ static void bt_mesh_scan_cb(const bt_mesh_addr_le_t *addr, s8_t rssi,
                     break;
     #if defined(CONFIG_BT_MESH_PB_ADV)
                 case BT_MESH_DATA_MESH_PROV:
-                    bt_mesh_pb_adv_recv(buf);
+	                #ifdef CONFIG_BT_MESH_ROLE_PROVISIONER // 配网器接收
+	                    bt_mesh_prov_adv_recv(buf);
+	                #else                                  // 节点接收
+	                    bt_mesh_pb_adv_recv(buf);
+	                #endif
                     break;
     #endif
                 case BT_MESH_DATA_MESH_BEACON:

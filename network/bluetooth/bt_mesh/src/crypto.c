@@ -851,3 +851,12 @@ int bt_mesh_beacon_auth(const u8_t beacon_key[16], u8_t flags,
 
 	return err;
 }
+
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+int bt_mesh_prov_encrypt(const uint8_t key[16], uint8_t nonce[13],
+                         const uint8_t data[25], uint8_t out[33])
+{
+    return bt_mesh_ccm_encrypt(key, nonce, data, 25, NULL, 0, out, 8);
+}
+#endif
+

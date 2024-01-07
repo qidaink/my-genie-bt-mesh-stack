@@ -1251,9 +1251,9 @@ void genie_mesh_init(void)
 
     BT_INFO(">>>init genie<<<");
 
-    genie_tri_tuple_load();
+    genie_tri_tuple_load(); // 加载三元组
 
-    prov.uuid = genie_tri_tuple_get_uuid();
+    prov.uuid = genie_tri_tuple_get_uuid(); // 发送配网广播的数据
 #ifdef GENIE_OLD_AUTH
     prov.static_val = genie_tri_tuple_get_auth();
     prov.static_val_len = STATIC_OOB_LENGTH;
@@ -1263,17 +1263,22 @@ void genie_mesh_init(void)
     prov.static_val = NULL;
     prov.static_val_len = 0;
 #endif
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+	// 配网器单播地址0x0001、未配网节点分配的起始地址0x0005
+    prov.prov_unicast_addr = 0x0001;
+    prov.prov_start_address = 0x0005;
+#endif
     prov.complete = _prov_complete;
     prov.reset = _prov_reset;
-
+    // 成分数据初始化
     comp.cid = CONFIG_CID_TAOBAO;
     comp.pid = 0;
     comp.vid = 1; // firmware version fir ota
     comp.elem = elements;
     comp.elem_count = get_vendor_element_num();
-    hci_driver_init();
+    hci_driver_init(); //HCI驱动初始化 蓝牙主机  <-> 蓝牙控制器
 
-    ret = bt_enable(_genie_mesh_ready);
+    ret = bt_enable(_genie_mesh_ready); // 开启蓝牙
     if (ret) {
         BT_INFO("init err %d", ret);
     }

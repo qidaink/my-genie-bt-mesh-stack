@@ -21,11 +21,17 @@
 #include "adv.h"
 #include "mesh.h"
 #include "net.h"
-#include "prov.h"
+
 #include "mesh_crypto.h"
 #include "beacon.h"
 #include "foundation.h"
 #include "bt_mesh_custom_log.h"
+
+#ifdef  CONFIG_BT_MESH_ROLE_PROVISIONER
+#include "provisioner_prov.h"
+#else
+#include "prov.h"
+#endif
 
 #define UNPROVISIONED_INTERVAL     K_MSEC(500)//K_SECONDS(5)
 #define PROVISIONED_INTERVAL       K_SECONDS(10)
@@ -250,6 +256,7 @@ int secure_beacon_send_with_flag(uint8_t kr_flag, uint8_t iv_flag)
     return sbeacon_send_with_flag(kr_flag, iv_flag);
 }
 
+#ifndef CONFIG_BT_MESH_ROLE_PROVISIONER		// 配网器不需要这个函数，但是节点需要
 static int unprovisioned_beacon_send(void)
 {
 #if defined(CONFIG_BT_MESH_PB_ADV)
@@ -310,6 +317,7 @@ static int unprovisioned_beacon_send(void)
 #endif /* CONFIG_BT_MESH_PB_ADV */
     return 0;
 }
+#endif
 
 static void update_beacon_observation(void)
 {
@@ -358,7 +366,9 @@ static void beacon_send(struct k_work *work)
                                   PROVISIONED_INTERVAL);
         }
     } else {
-        unprovisioned_beacon_send();
+        #ifndef CONFIG_BT_MESH_ROLE_PROVISIONER
+        unprovisioned_beacon_send(); // 屏蔽
+        #endif
         k_delayed_work_submit(&beacon_timer, unprov_beacon_interval_get());
     }
 
@@ -460,6 +470,13 @@ void bt_mesh_beacon_recv(struct net_buf_simple *buf)
     switch (type) {
         case BEACON_TYPE_UNPROVISIONED:
             BT_DBG("Ignoring unprovisioned device beacon");
+			#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+            extern void provisioner_link_open(const uint8_t * uuid);
+            if(is_provisioning() == 0) //发起配网
+            {
+				provisioner_link_open(buf->data);    
+            }               
+			#endif
             break;
         case BEACON_TYPE_SECURE:
             secure_beacon_recv(buf);

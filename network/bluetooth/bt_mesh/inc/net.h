@@ -188,6 +188,10 @@ struct bt_mesh_lpn {
 	ATOMIC_DEFINE(to_remove, LPN_GROUPS);
 };
 
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+#define CONFIG_BLE_MESH_PROVISIONER_APP_KEY_COUNT	3
+#define CONFIG_BLE_MESH_PROVISIONER_SUBNET_COUNT	3
+#endif
 struct bt_mesh_net {
 	u32_t iv_index;          /* Current IV Index */
 	u32_t seq:24,            /* Next outgoing sequence number */
@@ -222,6 +226,17 @@ struct bt_mesh_net {
 	struct bt_mesh_subnet sub[CONFIG_BT_MESH_SUBNET_COUNT];
 
 	struct bt_mesh_rpl rpl[CONFIG_BT_MESH_CRPL];
+#ifdef CONFIG_BT_MESH_ROLE_PROVISIONER
+    /* Application keys stored by provisioner */
+    struct bt_mesh_app_key *p_app_keys[CONFIG_BLE_MESH_PROVISIONER_APP_KEY_COUNT];
+    /* Next app_idx can be assigned */
+    uint16_t p_app_idx_next;
+
+    /* Network keys stored by provisioner */
+    struct bt_mesh_subnet *p_sub[CONFIG_BLE_MESH_PROVISIONER_SUBNET_COUNT];
+    /* Next net_idx can be assigned */
+    uint16_t p_net_idx_next;
+#endif
 
 };
 

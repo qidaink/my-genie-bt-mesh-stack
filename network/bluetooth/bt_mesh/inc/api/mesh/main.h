@@ -70,6 +70,7 @@ typedef struct{
 
 /** Provisioning properties & capabilities. */
 struct bt_mesh_prov {
+#ifndef CONFIG_BT_MESH_ROLE_PROVISIONER
     /** The UUID that's used when advertising as unprovisioned */
     const u8_t *uuid;
 
@@ -178,6 +179,38 @@ struct bt_mesh_prov {
      *  unprovisioned advertising on one or more provisioning bearers.
      */
     void        (*reset)(void);
+#else
+    const uint8_t *uuid;
+    const char *uri;
+
+    bt_mesh_prov_oob_info_t oob_info;
+    u8_t        public_key_type;
+    
+    u8_t *		static_val;
+    u8_t        static_val_len;
+    u8_t        output_size;
+    u16_t       output_actions;
+    u8_t        input_size;
+    u16_t       input_actions;
+    
+    uint16_t prov_unicast_addr;
+    uint16_t prov_start_address;
+    uint8_t  prov_attention;
+    uint8_t  prov_algorithm;
+
+    uint8_t  prov_pub_key_oob;
+    uint8_t  flags;
+    uint32_t iv_index;
+    
+    int  (*prov_pub_key_oob_cb)(void);
+    int  (*prov_input_num)(uint8_t method, bt_mesh_output_action_t act, uint8_t size, uint8_t link_idx);
+    int  (*prov_output_num)(uint8_t method, bt_mesh_input_action_t act, void *data, uint8_t size, uint8_t link_idx);
+
+    void (*link_open)(bt_mesh_prov_bearer_t bearer);
+    void (*link_close)(bt_mesh_prov_bearer_t bearer);
+    void (*complete)(uint16_t node_idx,uint16_t unicast_addr);
+    void (*reset)(void);                      
+#endif /* CONFIG_BT_MESH_ROLE_PROVISIONER */
 };
 
 /** @brief Initialize Mesh support

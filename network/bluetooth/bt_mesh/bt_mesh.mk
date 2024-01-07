@@ -32,7 +32,6 @@ $(NAME)_SOURCES  :=  ./src/access.c \
                      ./src/health_cli.c \
                      ./src/main.c \
                      ./src/net.c \
-                     ./src/prov.c \
                      ./src/proxy.c \
                      ./src/transport.c \
                      ./src/friend.c \
@@ -40,9 +39,9 @@ $(NAME)_SOURCES  :=  ./src/access.c \
                      ./src/shell.c 
 
 ifeq ($(FUNC_BT_MESH_PROVISIONER), y)
-$(NAME)_SOURCES  += ./src/provisioner_prov.c # 配网器
+$(NAME)_SOURCES  += ./src/provisioner_prov.c # 配网器 ./src/provisioner_prov.c
 else
-$(NAME)_SOURCES  += # 节点，上面的配网器的还未实现，这里暂不修改 ./src/prov.c 
+$(NAME)_SOURCES  += ./src/prov.c             # 节点   ./src/prov.c 
 endif
 
 GLOBAL_INCLUDES += ./inc/ \
